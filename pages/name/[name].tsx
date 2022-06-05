@@ -35,7 +35,9 @@ export const getStaticPaths:GetStaticPaths = async () => {
   // y aca creo mis 151 paths y lo paso x parametro el mane es el nombre de la pagina
   return{
     paths: pokemons.map( name => ({params: {name}})),
-    fallback:false 
+    //fallback:false 
+    fallback:'blocking' // para q genera un ids nuevo cuando no existe el id q pide en el llamado original de la app
+
   }
 }
 
@@ -44,10 +46,20 @@ export const getStaticPaths:GetStaticPaths = async () => {
 export const getStaticProps : GetStaticProps = async ({params}) => { 
 
   const {name} = params as {name: string}
+  const pokemon = await getInfoPokemons(name)
+
+  if(!pokemon){
+    return{
+      redirect:{
+        pathname:'/',
+        permanent:false // lo pongo en false porque puede ser q luego exista el pokemon pero hoy no 
+      }
+    }
+  }
 
   return {
     props: {
-      pokemon : await getInfoPokemons(name)
+      pokemon
     }
   }
 }
